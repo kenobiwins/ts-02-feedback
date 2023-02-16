@@ -1,4 +1,5 @@
 import { Component } from 'react';
+import React from 'react';
 
 import { Container } from '../BaseStyles/BaseStyles.styled';
 import { Section } from './Section/Section';
@@ -6,19 +7,35 @@ import { FeedbackOptions } from './FeedbackOptions/FeedbackOptions';
 import { Statistics } from './Statistics/Statistics';
 import { NotificationMessage } from './NotificationMessage/NotificationMessage';
 
-export class App extends Component {
-  state = {
+type IState = {
+  good: number;
+  neutral: number;
+  bad: number;
+};
+
+export class App extends Component<{}, IState> {
+  state: IState = {
     good: 0,
     neutral: 0,
     bad: 0,
   };
 
-  handleClick = e => {
-    const key = e.target.textContent;
+  handleClick = (e: React.ChangeEvent<Element>) => {
+    const key: string | null = e.target.textContent;
 
-    this.setState(prevState => ({
-      [key]: prevState[key] + 1,
-    }));
+    if (!key) return;
+    this.setState(prevState => {
+      switch (key) {
+        case 'good':
+          return { ...prevState, good: prevState['good'] + 1 };
+        case 'neutral':
+          return { ...prevState, neutral: prevState['neutral'] + 1 };
+        case 'bad':
+          return { ...prevState, bad: prevState['bad'] + 1 };
+        default:
+          break;
+      }
+    });
   };
 
   countTotalFeedback = () => {
@@ -33,7 +50,10 @@ export class App extends Component {
   };
 
   countPositiveFeedbackPercentage = () => {
-    const total = this.countTotalFeedback();
+    const total: number | undefined = this.countTotalFeedback();
+    if (!total) {
+      return;
+    }
     // console.log(total);
     const possitiveValue = [this.state].reduce((acc, el) => {
       acc += el['good'];
